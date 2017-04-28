@@ -12,10 +12,11 @@
 //   access_token_secret: config.accessTokenSecret
 // });
 
-var getTweets = require('./index.js');
+var doThing = require('./index.js');
 
+doThing('vegan');
+setInterval(function() { doThing('vegan'); }, 70000);
 
-getTweets('phocks');
  
 // var params = {screen_name: 'phocks'};
 // client.get('statuses/user_timeline', params, function(error, tweets, response) {

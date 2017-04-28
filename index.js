@@ -9,16 +9,49 @@ var client = new Twitter({
   access_token_key: config.accessToken,
   access_token_secret: config.accessTokenSecret
 });
- 
-module.exports = function(screenName) {
+
+var currentTweetId;
+var previousTweetId
+
+module.exports = function(searchPhrase) {
   var params = {
-    screen_name: 'screenName',
+    q: searchPhrase,
     count: 1
   };
-  
-  client.get('statuses/user_timeline', params, function(error, tweets, response) {
+
+  client.get('search/tweets', params, function(error, tweets, response) {
     if (!error) {
-      console.log(tweets);
+      // console.log(tweets);
+      currentTweetId = tweets.statuses[0].id_str
+      var params = {
+        id: currentTweetId
+      }
+      // Let's fav this tweet
+      client.post('favorites/create', params, function(error, json, response) {
+        if (!error) {
+          console.log("Faved " + currentTweetId + ": " + tweets.statuses[0].text);
+          previousTweetId = currentTweetId;
+
+          setTimeout( function() {
+            // Now we can unfav previous tweet
+            var params = {
+              id: previousTweetId
+            }
+            client.post('favorites/destroy', params, function(error, json, response) {
+              if (!error) {
+                console.log("unfaved previous: " + previousTweetId);
+              }
+              else {
+                console.log("couldn't unfav: " + error);
+              }
+            });
+          }, 60000);
+        }
+        else {
+          console.log("oh no: " + error);
+        }
+        
+      })
     }
     else console.log(error);
   });
